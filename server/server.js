@@ -19,6 +19,7 @@ const userRoutes = require('./routes/users');
 const chatRoutes = require('./routes/chats');
 const messageRoutes = require('./routes/messages');
 const fileRoutes = require('./routes/files');
+const storyRoutes = require('./routes/stories');
 const maintenanceRouter = require('./routes/maintenance');
 
 // ----------------------
@@ -107,8 +108,9 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chats', chatRoutes);
-app.use('/api/messages', messageRoutes);
-app.use('/api/files', fileRoutes);
+app.use('/api', messageRoutes);
+app.use('/api/upload', fileRoutes);
+app.use('/api/stories', storyRoutes);
 
 // Админ-маршруты (профилактика)
 app.use('/admin', maintenanceRouter);
