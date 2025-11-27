@@ -1,0 +1,13 @@
+[0;1;31m×[0m nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: [0;1;31mfailed[0m (Result: exit-code) since Tue 2025-11-04 17:24:00 UTC; 2min 14s ago
+       Docs: man:nginx(8)
+    Process: 124871 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; [0;1;31m(code=exited, status=1/FAILURE)[0m
+        CPU: 49ms
+
+Nov 04 17:24:00 VM-700183 systemd[1]: Starting A high performance web server and a reverse proxy server...
+Nov 04 17:24:00 VM-700183 nginx[124871]: nginx: [emerg] cannot load certificate "/mnt/data/kocmoc_messenger_v2_work/kocmoc-messenger/certs/server.crt": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/mnt/data/kocmoc_messenger_v2_work/kocmoc-messenger/certs/server.crt, r) error:10000080:BIO routines::no such file)
+Nov 04 17:24:00 VM-700183 nginx[124871]: nginx: configuration file /etc/nginx/nginx.conf test failed
+Nov 04 17:24:00 VM-700183 systemd[1]: [0;1;39m[0;1;31m[0;1;39mnginx.service: Control process exited, code=exited, status=1/FAILURE[0m
+Nov 04 17:24:00 VM-700183 systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mnginx.service: Failed with result 'exit-code'.[0m
+Nov 04 17:24:00 VM-700183 systemd[1]: [0;1;31m[0;1;39m[0;1;31mFailed to start A high performance web server and a reverse proxy server.[0m
