@@ -56,6 +56,11 @@ psql -U kocmoc_user -d kocmoc -f database/schema_postgres.sql
 npm install
 ```
 
+> Если внешний реестр npm недоступен (например, 403 или timeout в изолированной среде),
+> скачайте зависимости заранее и перенесите папку `node_modules` вместе с `package-lock.json`,
+> или укажите приватное зеркало в `npm config set registry <url>`. Без установленного
+> `node_modules` сервер не запустится.
+
 ## 5) Запуск
 ```bash
 # Локально
