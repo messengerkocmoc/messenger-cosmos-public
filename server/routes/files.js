@@ -46,8 +46,8 @@ const upload = multer({
   }
 });
 
-// Загрузка файла
-router.post('/upload', authenticateToken, upload.single('file'), (req, res) => {
+// Загрузка файла по ТЗ: /api/upload/file
+router.post('/file', authenticateToken, upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Файл не загружен' });

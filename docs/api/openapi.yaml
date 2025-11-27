@@ -1,0 +1,573 @@
+openapi: 3.1.0
+info:
+  title: kocmoc messenger (legacy Node.js)
+  version: 1.0.0
+  description: >-
+    Снимок текущих REST маршрутов. Ответы используют поля `error` для ошибок и
+    `message`/`token`/`success` для успешных операций. JWT срок 30 дней.
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/auth/register:
+    post:
+      summary: Регистрация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string }
+                avatar: { type: string }
+                deviceId: { type: string }
+              required: [name, email, password]
+      responses:
+        '201':
+          description: Пользователь создан, код отправлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId: { type: integer }
+                  email: { type: string }
+                  message: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+  /api/auth/verify-email:
+    post:
+      summary: Подтверждение email кодом
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: integer }
+                code: { type: string }
+                deviceId: { type: string }
+              required: [userId, code]
+      responses:
+        '200':
+          description: Email подтверждён, выдаётся токен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+                  token: { type: string }
+                  message: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+  /api/auth/login:
+    post:
+      summary: Логин по email и паролю
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+                deviceId: { type: string }
+              required: [email, password]
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+                  token: { type: string }
+                  message: { type: string }
+        '401': { $ref: '#/components/responses/Error' }
+  /api/auth/logout:
+    post:
+      summary: Выход пользователя
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+  /api/auth/verify:
+    get:
+      summary: Проверка JWT
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Валидный токен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Error' }
+  /api/auth/accounts/{deviceId}:
+    get:
+      summary: Аккаунты на устройстве
+      parameters:
+        - in: path
+          name: deviceId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Список аккаунтов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accounts:
+                    type: array
+                    items: { $ref: '#/components/schemas/UserSummary' }
+  /api/users:
+    get:
+      summary: Список пользователей
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+  /api/users/{id}:
+    get:
+      summary: Профиль пользователя
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+      responses:
+        '200':
+          description: Найден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+        '404': { $ref: '#/components/responses/Error' }
+    put:
+      summary: Обновление профиля (владелец или админ)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                avatar: { type: string }
+                bio: { type: string }
+                birthdate: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/MessageWithUser' }
+        '403': { $ref: '#/components/responses/Error' }
+  /api/users/search/{query}:
+    get:
+      summary: Поиск пользователей
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: query
+          required: true
+          schema: { type: string, minLength: 2 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items: { $ref: '#/components/schemas/UserSummary' }
+  /api/contacts:
+    get:
+      summary: Контакты пользователя
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Список контактов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contacts:
+                    type: array
+                    items: { $ref: '#/components/schemas/Contact' }
+  /api/contacts/add:
+    post:
+      summary: Добавление контакта
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: integer }
+                contactId: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+  /api/contacts/remove:
+    post:
+      summary: Удаление контакта
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: integer }
+                contactId: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+  /api/chats:
+    get:
+      summary: Чаты пользователя
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chats:
+                    type: array
+                    items: { $ref: '#/components/schemas/Chat' }
+    post:
+      summary: Создание чата
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                participantIds:
+                  type: array
+                  items: { type: integer }
+                name: { type: string }
+                type: { type: string, enum: [personal, group] }
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat: { $ref: '#/components/schemas/Chat' }
+                  message: { type: string }
+  /api/chats/{id}:
+    get:
+      summary: Получить чат и участников
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chat: { $ref: '#/components/schemas/ChatWithParticipants' }
+    put:
+      summary: Обновить настройки чата (muted/archived/unread_count)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                muted: { type: boolean }
+                archived: { type: boolean }
+                unreadCount: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+    delete:
+      summary: Удалить чат
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+  /api/messages/{chatId}:
+    get:
+      summary: Сообщения чата
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: chatId
+          schema: { type: integer }
+          required: true
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items: { $ref: '#/components/schemas/Message' }
+    post:
+      summary: Отправка сообщения
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageInput'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { $ref: '#/components/schemas/Message' }
+  /api/messages/{messageId}/react:
+    post:
+      summary: Добавить реакцию
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reaction: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+    delete:
+      summary: Удалить реакцию
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+  /api/messages/{chatId}/read:
+    put:
+      summary: Сбросить счётчик непрочитанных
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+  /api/messages/{id}:
+    delete:
+      summary: Удалить сообщение
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+  /api/messages/{chatId}/search:
+    get:
+      summary: Поиск сообщений в чате
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: q
+          required: true
+          schema: { type: string, minLength: 2 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items: { $ref: '#/components/schemas/Message' }
+  /api/files/upload:
+    post:
+      summary: Загрузка файла/голоса
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  file: { $ref: '#/components/schemas/FileInfo' }
+                  message: { type: string }
+  /api/files/{fileId}:
+    get:
+      summary: Получить файл
+      parameters:
+        - in: path
+          name: fileId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Бинарный поток
+          content:
+            '*/*': { schema: { type: string, format: binary } }
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      summary: Удалить файл
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Message' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: Ошибка
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: { type: string }
+    Message:
+      description: Ответ с текстом
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
+    MessageWithUser:
+      description: Ответ с пользователем
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
+              user: { $ref: '#/components/schemas/User' }
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        avatar: { type: string }
+        bio: { type: string }
+        birthdate: { type: string }
+        online: { type: boolean }
+        is_admin: { type: boolean }
+        banned: { type: boolean }
+        created_at: { type: string, format: date-time }
+    UserSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        avatar: { type: string }
+    Contact:
+      type: object
+      properties:
+        id: { type: integer }
+        contact_id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        avatar: { type: string }
+        bio: { type: string }
+        online: { type: boolean }
+        created_at: { type: string, format: date-time }
+    Chat:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        avatar: { type: string }
+        type: { type: string }
+        unread_count: { type: integer }
+        muted: { type: boolean }
+        archived: { type: boolean }
+        last_message: { type: string }
+        last_message_time: { type: string, format: date-time }
+    ChatWithParticipants:
+      allOf:
+        - $ref: '#/components/schemas/Chat'
+        - type: object
+          properties:
+            participants:
+              type: array
+              items: { $ref: '#/components/schemas/UserSummary' }
+    Message:
+      type: object
+      properties:
+        id: { type: integer }
+        chat_id: { type: integer }
+        sender_id: { type: integer }
+        text: { type: string }
+        message_type: { type: string }
+        file_url: { type: string }
+        file_name: { type: string }
+        file_size: { type: integer }
+        file_type: { type: string }
+        voice_url: { type: string }
+        voice_duration: { type: integer }
+        status: { type: string }
+        created_at: { type: string, format: date-time }
+        sender_name: { type: string }
+        sender_avatar: { type: string }
+    MessageInput:
+      type: object
+      properties:
+        text: { type: string }
+        message_type: { type: string, default: text }
+        file_url: { type: string }
+        file_name: { type: string }
+        file_size: { type: integer }
+        file_type: { type: string }
+        voice_url: { type: string }
+        voice_duration: { type: integer }
+      required: []
+    FileInfo:
+      type: object
+      properties:
+        id: { type: string }
+        originalName: { type: string }
+        size: { type: integer }
+        mimetype: { type: string }
+        path: { type: string }
+        url: { type: string }
+        uploadedAt: { type: string, format: date-time }

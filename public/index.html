@@ -1,436 +1,477 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-<title>kocmoc — современный мессенджер</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<link href="css/style.css" rel="stylesheet"/>
-<link href="/css/override.css" rel="stylesheet"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport" />
+    <title>kocmoc — современный мессенджер</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <link href="/css/override.css" rel="stylesheet" />
 </head>
 <body>
-<div class="notification-container" id="notificationContainer"></div>
-<!-- Админ кнопка -->
-<div class="admin-float-btn" id="adminFloatBtn" style="display: none;">
-<i class="fas fa-shield-alt"></i>
-</div>
-<!-- Экран авторизации -->
-<div class="auth-container" id="authContainer">
-<div class="auth-box">
-<div class="auth-logo">
-<i class="fas fa-comment-dots"></i>
-<span>kocmoc</span>
-</div>
-<div class="auth-tabs">
-<button class="auth-tab active" data-tab="login">Вход</button>
-<button class="auth-tab" data-tab="register">Регистрация</button>
-</div>
-<form class="auth-form active" id="loginForm">
-<div class="form-group">
-<label for="loginEmail">Email</label>
-<input id="loginEmail" placeholder="Введите ваш email" required="" type="email"/>
-</div>
-<div class="form-group">
-<label for="loginPassword">Пароль</label>
-<input id="loginPassword" placeholder="Введите ваш пароль" required="" type="password"/>
-</div>
-<button class="btn" type="submit">
-<i class="fas fa-sign-in-alt"></i> Войти
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Админ кнопка -->
+    <div class="admin-float-btn" id="adminFloatBtn" style="display: none;">
+        <i class="fas fa-shield-alt"></i>
+    </div>
+
+    <!-- Экран авторизации -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <i class="fas fa-comment-dots"></i>
+                <span>kocmoc</span>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Вход</button>
+                <button class="auth-tab" data-tab="register">Регистрация</button>
+            </div>
+
+            <form class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input id="loginEmail" placeholder="Введите ваш email" required type="email" />
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль</label>
+                    <input id="loginPassword" placeholder="Введите ваш пароль" required type="password" />
+                </div>
+                <button class="btn" type="submit">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Войти
                 </button>
-<div class="error-message" id="loginError"></div>
-</form>
-<form class="auth-form" id="registerForm">
-<div class="form-group">
-<label for="registerName">Имя и фамилия</label>
-<input id="registerName" placeholder="Введите ваше имя" required="" type="text"/>
-</div>
-<div class="form-group">
-<label for="registerEmail">Email</label>
-<input id="registerEmail" placeholder="Введите ваш email" required="" type="email"/>
-</div>
-<div class="form-group">
-<label for="registerPassword">Пароль</label>
-<input id="registerPassword" placeholder="Придумайте пароль" required="" type="password"/>
-</div>
-<div class="form-group">
-<label for="registerAvatar">Аватар (URL)</label>
-<input id="registerAvatar" placeholder="Необязательно" type="text"/>
-</div>
-<button class="btn" type="submit">
-<i class="fas fa-user-plus"></i> Зарегистрироваться
+                <div class="error-message" id="loginError"></div>
+            </form>
+
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Имя и фамилия</label>
+                    <input id="registerName" placeholder="Введите ваше имя" required type="text" />
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input id="registerEmail" placeholder="Введите ваш email" required type="email" />
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Пароль</label>
+                    <input id="registerPassword" placeholder="Придумайте пароль" required type="password" />
+                </div>
+                <div class="form-group">
+                    <label for="registerAvatar">Аватар (URL)</label>
+                    <input id="registerAvatar" placeholder="Необязательно" type="text" />
+                </div>
+                <button class="btn" type="submit">
+                    <i class="fas fa-user-plus"></i>
+                    Зарегистрироваться
                 </button>
-<div class="error-message" id="registerError"></div>
-</form>
-<form class="auth-form verify-email-form" id="verifyEmailForm">
-<div class="verify-card">
-<div class="verify-title">
-<div class="verify-title-main">
-<i class="fas fa-shield-alt"></i>
-<span>Подтверждение email</span>
-</div>
-<p class="verify-title-sub">Остался последний шаг, чтобы войти в kocmoc.</p>
-</div>
-<div class="verify-email-pill">
-<i class="fas fa-envelope-open-text"></i>
-<div class="verify-email-text-wrap">
-<span class="verify-email-label">Код отправлен на</span>
-<span class="verify-email-value" id="verifyEmailText"></span>
-</div>
-</div>
-<p class="verify-text">
-            Введите одноразовый код из письма, чтобы активировать аккаунт.
-        </p>
-<div class="form-group verify-code-group">
-<label for="verifyCode">Код из письма</label>
-<div class="verify-code-inputs" id="verifyCodeInputs">
-  <input type="text" inputmode="numeric" maxlength="1" class="verify-code-digit" data-index="0" autocomplete="one-time-code">
-  <input type="text" inputmode="numeric" maxlength="1" class="verify-code-digit" data-index="1">
-  <input type="text" inputmode="numeric" maxlength="1" class="verify-code-digit" data-index="2">
-  <input type="text" inputmode="numeric" maxlength="1" class="verify-code-digit" data-index="3">
-  <input type="text" inputmode="numeric" maxlength="1" class="verify-code-digit" data-index="4">
-  <input type="text" inputmode="numeric" maxlength="1" class="verify-code-digit" data-index="5">
-</div>
-<input type="hidden" id="verifyCode">
-</div>
-<button class="btn auth-submit-btn" type="submit">
-<i class="fas fa-check"></i>
-<span>Подтвердить</span>
-</button>
-<button class="btn btn-secondary verify-resend-btn" id="resendCodeBtn" type="button">
-<i class="fas fa-paper-plane"></i>
-<span>Отправить код ещё раз</span>
-</button>
-<div class="verify-actions-hint">
-<span>Не пришло письмо?</span>
-<span class="verify-actions-hint-accent">Проверьте папку «Спам» или отправьте код ещё раз.</span>
-</div>
-<div class="error-message" id="verifyError"></div>
-</div>
-</form>
-</div>
-</div>
-<!-- Основное приложение -->
-<div class="container app-container" id="appContainer">
-<!-- Мобильный хедер -->
-<div class="mobile-header">
-<div class="app-logo">
-<i class="fas fa-comment-dots"></i>
-<span>kocmoc</span>
-</div>
-<div class="mobile-header-actions">
-<i class="fas fa-search mobile-header-btn" id="mobileSearchBtn"></i>
-<i class="fas fa-ellipsis-v mobile-header-btn" id="mobileMenuBtn"></i>
-</div>
-</div><div class="mobile-section-title" id="mobileSectionTitle">Чаты</div>
-<!-- Сайдбар -->
-<div class="sidebar" id="sidebar">
-<div class="sidebar-header">
-<div class="app-logo">
-<i class="fas fa-comment-dots"></i>
-<span>kocmoc</span>
-</div>
-<div class="user-info">
-<img class="user-avatar" id="userAvatar" src=""/>
-<span id="userName"></span>
-<button class="switch-account-btn" id="switchAccountBtn" title="Сменить аккаунт">
-<i class="fas fa-exchange-alt"></i>
-</button>
-<button class="logout-btn" id="logoutBtn">
-<i class="fas fa-sign-out-alt"></i>
-</button>
-</div>
-</div>
-<div class="sidebar-search">
-<div class="search-container">
-<i class="fas fa-search"></i>
-<input class="search-input" id="searchInput" placeholder="Поиск чатов и сообщений..." type="text"/>
-</div>
-<div class="search-buttons">
-<button class="refresh-chat-btn" id="refreshChatBtn">
-<i class="fas fa-sync-alt"></i> Обновить
+                <div class="error-message" id="registerError"></div>
+            </form>
+
+            <form class="auth-form verify-email-form" id="verifyEmailForm">
+                <div class="verify-card">
+                    <div class="verify-title">
+                        <div class="verify-title-main">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Подтверждение email</span>
+                        </div>
+                        <p class="verify-title-sub">Остался последний шаг, чтобы войти в kocmoc.</p>
+                    </div>
+
+                    <div class="verify-email-pill">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <div class="verify-email-text-wrap">
+                            <span class="verify-email-label">Код отправлен на</span>
+                            <span class="verify-email-value" id="verifyEmailText"></span>
+                        </div>
+                    </div>
+
+                    <p class="verify-text">
+                        Введите одноразовый код из письма, чтобы активировать аккаунт.
+                    </p>
+
+                    <div class="form-group verify-code-group">
+                        <label for="verifyCode">Код из письма</label>
+                        <div class="verify-code-inputs" id="verifyCodeInputs">
+                            <input autocomplete="one-time-code" class="verify-code-digit" data-index="0" inputmode="numeric" maxlength="1" type="text" />
+                            <input class="verify-code-digit" data-index="1" inputmode="numeric" maxlength="1" type="text" />
+                            <input class="verify-code-digit" data-index="2" inputmode="numeric" maxlength="1" type="text" />
+                            <input class="verify-code-digit" data-index="3" inputmode="numeric" maxlength="1" type="text" />
+                            <input class="verify-code-digit" data-index="4" inputmode="numeric" maxlength="1" type="text" />
+                            <input class="verify-code-digit" data-index="5" inputmode="numeric" maxlength="1" type="text" />
+                        </div>
+                        <input id="verifyCode" type="hidden" />
+                    </div>
+
+                    <button class="btn auth-submit-btn" type="submit">
+                        <i class="fas fa-check"></i>
+                        <span>Подтвердить</span>
                     </button>
-<button class="new-chat-search-btn" id="newChatSearchBtn">
-<i class="fas fa-edit"></i> Новый чат
+
+                    <button class="btn btn-secondary verify-resend-btn" id="resendCodeBtn" type="button">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Отправить код ещё раз</span>
                     </button>
-</div>
-</div>
-<ul class="nav-list">
-<li class="nav-item active" id="allChatsBtn">
-<i class="fas fa-comments"></i>
-<span>Все чаты</span>
-</li>
-<li class="nav-item" id="contactsBtn">
-<i class="fas fa-address-book"></i>
-<span>Контакты</span>
-</li>
-<li class="nav-item" id="groupsBtn">
-<i class="fas fa-users"></i>
-<span>Группы</span>
-</li>
-<li class="nav-item" id="settingsBtn">
-<i class="fas fa-cog"></i>
-<span>Настройки</span>
-</li>
-</ul>
-<div class="chats-list" id="chatsList"></div>
-</div>
-<!-- Основной контент -->
-<div class="main-content">
-<div class="chat-header">
-<i class="fas fa-bars menu-toggle" id="menuToggle"></i>
-<img class="current-chat-avatar" id="currentChatAvatar" src=""/>
-<div class="current-chat-info">
-<div class="current-chat-name" id="currentChatName">Выберите чат</div>
-<div class="current-chat-status" id="currentChatStatus"></div>
-</div>
-<div class="chat-actions">
-<i class="fas fa-phone-alt chat-action-btn" id="voiceCallBtn"></i>
-<i class="fas fa-video chat-action-btn" id="videoCallBtn"></i>
-<i class="fas fa-info-circle chat-action-btn" id="chatInfoBtn"></i>
-</div>
-</div>
-<div class="messages-container" id="messagesContainer">
-<div class="welcome-message">
-<i class="fas fa-comment-dots"></i>
-<h2>Добро пожаловать в kocmoc!</h2>
-<p>Выберите чат из списка чтобы начать общение</p>
-</div>
-</div>
-<div class="message-input-container">
-<i class="far fa-smile emoji-btn" id="emojiBtn"></i>
-<i class="fas fa-paperclip attachment-btn" id="attachmentBtn"></i>
-<input accept="*/*" id="fileInput" style="display: none;" type="file"/>
-<div class="message-input-wrapper">
-<textarea class="message-input" id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
-<div class="emoji-panel" id="emojiPanel"></div>
-</div>
-<i class="fas fa-microphone voice-message-btn" id="voiceMessageBtn"></i>
-<i class="fas fa-paper-plane send-btn" id="sendMessageBtn"></i>
-</div>
-</div>
-<!-- Мобильный футер -->
-<div class="mobile-footer">
-<div class="mobile-nav">
-<div class="mobile-nav-item active" data-tab="chats">
-<i class="fas fa-comments"></i>
-<span>Чаты</span>
-</div>
-<div class="mobile-nav-item" data-tab="contacts">
-<i class="fas fa-address-book"></i>
-<span>Контакты</span>
-</div>
-<div class="mobile-nav-item" data-tab="groups">
-<i class="fas fa-users"></i>
-<span>Группы</span>
-</div>
-<div class="mobile-nav-item" data-tab="profile">
-<i class="fas fa-user"></i>
-<span>Профиль</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Админ-панель -->
-<div class="admin-container" id="adminContainer">
-<div class="admin-header">
-<div class="admin-logo">
-<i class="fas fa-shield-alt"></i>
-<span>Админ-панель</span>
-</div>
-<div class="admin-user">
-<img class="user-avatar" id="adminUserAvatar" src=""/>
-<span id="adminUserName"></span>
-<button class="logout-btn" id="adminLogoutBtn">
-<i class="fas fa-sign-out-alt"></i>
-</button>
-</div>
-</div>
-<div class="admin-tabs">
-<button class="admin-tab active" data-tab="statistics">Статистика</button>
-<button class="admin-tab" data-tab="users">Пользователи</button>
-<button class="admin-tab" data-tab="messages">Сообщения</button>
-<button class="admin-tab" data-tab="devices">Устройства</button>
-</div>
-<div class="admin-content">
-<div class="admin-tab-content active" id="statisticsTab">
-<h2>Статистика системы</h2>
-<div class="stats-grid">
-<div class="stat-card">
-<div class="stat-number" id="totalUsers">0</div>
-<div class="stat-label">Пользователей</div>
-</div>
-<div class="stat-card">
-<div class="stat-number" id="totalChats">0</div>
-<div class="stat-label">Чатов</div>
-</div>
-<div class="stat-card">
-<div class="stat-number" id="totalMessages">0</div>
-<div class="stat-label">Сообщений</div>
-</div>
-<div class="stat-card">
-<div class="stat-number" id="totalDevices">0</div>
-<div class="stat-label">Устройств</div>
-</div>
-</div>
-</div>
-<div class="admin-tab-content" id="usersTab">
-<h2>Управление пользователями</h2>
-<div class="admin-table-container">
-<table class="admin-table">
-<thead>
-<tr>
-<th>ID</th>
-<th>Аватар</th>
-<th>Имя</th>
-<th>Email</th>
-<th>Статус</th>
-<th>Действия</th>
-</tr>
-</thead>
-<tbody id="usersTableBody"></tbody>
-</table>
-</div>
-</div>
-<div class="admin-tab-content" id="messagesTab">
-<h2>Все сообщения</h2>
-<div class="admin-message-view" id="adminMessagesView"></div>
-</div>
-<div class="admin-tab-content" id="devicesTab">
-<h2>Управление устройствами</h2>
-<div class="admin-table-container">
-<table class="admin-table">
-<thead>
-<tr>
-<th>ID устройства</th>
-<th>Количество аккаунтов</th>
-<th>Создано</th>
-<th>Действия</th>
-</tr>
-</thead>
-<tbody id="devicesTableBody"></tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-<!-- Модальные окна -->
-<div class="modal" id="newChatModal">
-<div class="modal-content">
-<div class="modal-header">
-<div class="modal-title">Новый чат</div>
-<div class="modal-close" id="closeNewChatModal">×</div>
-</div>
-<div class="modal-body">
-<div class="form-group">
-<label>Выберите пользователя</label>
-<select class="form-control" id="userSelect"></select>
-</div>
-</div>
-<div class="modal-footer">
-<button class="btn" id="createChatBtn">Создать чат</button>
-</div>
-</div>
-</div>
-<div class="modal" id="createGroupModal">
-<div class="modal-content">
-<div class="modal-header">
-<div class="modal-title">Создать группу</div>
-<div class="modal-close" id="closeCreateGroupModal">×</div>
-</div>
-<div class="modal-body">
-<div class="form-group">
-<label>Название группы</label>
-<input class="form-control" id="groupNameInput" placeholder="Введите название группы" type="text"/>
-</div>
-<div class="form-group">
-<label>Выберите участников</label>
-<select class="form-control" id="groupMembersSelect" multiple="" style="height: 150px;">
-</select>
-<small>Для выбора нескольких участников удерживайте Ctrl (Cmd на Mac)</small>
-</div>
-</div>
-<div class="modal-footer">
-<button class="btn" id="createGroupBtn">Создать группу</button>
-</div>
-</div>
-</div>
-<div class="modal" id="settingsModal">
-<div class="modal-content">
-<div class="modal-header">
-<div class="modal-title">Настройки</div>
-<div class="modal-close" id="closeSettingsModal">×</div>
-</div>
-<div class="modal-body">
-<div class="form-group">
-<label>Тема приложения</label>
-<select class="form-control" id="themeSelect">
-<option value="default">Фиолетовая</option>
-<option value="dark">Темная</option>
-<option value="light">Светлая</option>
-</select>
-</div>
-<div class="form-group">
-<label>Проверка микрофона</label>
-<button class="btn" id="testMicrophoneBtn" type="button">
-<i class="fas fa-microphone"></i> Проверить микрофон
+
+                    <div class="verify-actions-hint">
+                        <span>Не пришло письмо?</span>
+                        <span class="verify-actions-hint-accent">Проверьте папку «Спам» или отправьте код ещё раз.</span>
+                    </div>
+
+                    <div class="error-message" id="verifyError"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Основное приложение -->
+    <div class="container app-container" id="appContainer">
+        <!-- Мобильный хедер -->
+        <div class="mobile-header">
+            <div class="app-logo">
+                <i class="fas fa-comment-dots"></i>
+                <span>kocmoc</span>
+            </div>
+            <div class="mobile-header-actions">
+                <i class="fas fa-search mobile-header-btn" id="mobileSearchBtn"></i>
+                <i class="fas fa-ellipsis-v mobile-header-btn" id="mobileMenuBtn"></i>
+            </div>
+        </div>
+        <div class="mobile-section-title" id="mobileSectionTitle">Чаты</div>
+
+        <!-- Сайдбар -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="app-logo">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>kocmoc</span>
+                </div>
+                <div class="user-info">
+                    <img class="user-avatar" id="userAvatar" src="" />
+                    <span id="userName"></span>
+                    <button class="switch-account-btn" id="switchAccountBtn" title="Сменить аккаунт">
+                        <i class="fas fa-exchange-alt"></i>
                     </button>
-<small>Проверьте работу микрофона перед отправкой голосовых сообщений</small>
-</div>
-</div>
-<div class="modal-footer">
-<button class="btn" id="saveSettingsBtn">Сохранить</button>
-</div>
-</div>
-</div>
-<div class="modal" id="accountSwitchModal">
-<div class="modal-content">
-<div class="modal-header">
-<div class="modal-title">Выбор аккаунта</div>
-<div class="modal-close" id="closeAccountSwitchModal">×</div>
-</div>
-<div class="modal-body">
-<div class="accounts-list" id="accountsList"></div>
-</div>
-<div class="modal-footer">
-<button class="btn" id="addAccountBtn">Добавить аккаунт</button>
-</div>
-</div>
-</div>
-<div class="feature-modal" id="featureModal">
-<div class="feature-modal-content">
-<div class="feature-modal-icon">🚧</div>
-<h2 class="feature-modal-title">В разработке</h2>
-<p class="feature-modal-text">Данная функция находится в разработке.</p>
-<button class="feature-modal-close" id="closeFeatureModal">OK</button>
-</div>
-</div>
-<!-- Модальное для файлов -->
-<div class="modal" id="fileModal">
-<div class="modal-content file-modal-content">
-<div class="modal-header">
-<div class="modal-title" id="fileModalTitle">Файл</div>
-<div class="modal-close" id="closeFileModal">×</div>
-</div>
-<div class="modal-body file-modal-body" id="fileModalBody"></div>
-</div>
-</div>
-<!-- Индикатор записи голоса -->
-<div class="voice-recorder" id="voiceRecorder">
-<div class="voice-recorder-content">
-<div class="voice-recorder-icon">
-<i class="fas fa-microphone"></i>
-</div>
-<div class="voice-recorder-timer">0:00</div>
-<div class="voice-recorder-actions">
-<button class="voice-recorder-cancel" id="voiceRecorderCancel">Отмена</button>
-<button class="voice-recorder-send" id="voiceRecorderSend">Отправить</button>
-</div>
-</div>
-</div>
-<script src="js/app.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/chat.js"></script>
-<script src="js/admin.js"></script>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-search">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input class="search-input" id="searchInput" placeholder="Поиск чатов и сообщений..." type="text" />
+                </div>
+                <div class="search-buttons">
+                    <button class="refresh-chat-btn" id="refreshChatBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        Обновить
+                    </button>
+                    <button class="new-chat-search-btn" id="newChatSearchBtn">
+                        <i class="fas fa-edit"></i>
+                        Новый чат
+                    </button>
+                </div>
+            </div>
+
+            <ul class="nav-list">
+                <li class="nav-item active" id="allChatsBtn">
+                    <i class="fas fa-comments"></i>
+                    <span>Все чаты</span>
+                </li>
+                <li class="nav-item" id="contactsBtn">
+                    <i class="fas fa-address-book"></i>
+                    <span>Контакты</span>
+                </li>
+                <li class="nav-item" id="groupsBtn">
+                    <i class="fas fa-users"></i>
+                    <span>Группы</span>
+                </li>
+                <li class="nav-item" id="settingsBtn">
+                    <i class="fas fa-cog"></i>
+                    <span>Настройки</span>
+                </li>
+            </ul>
+
+            <div class="chats-list" id="chatsList"></div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="main-content">
+            <div class="chat-header">
+                <i class="fas fa-bars menu-toggle" id="menuToggle"></i>
+                <img class="current-chat-avatar" id="currentChatAvatar" src="" />
+                <div class="current-chat-info">
+                    <div class="current-chat-name" id="currentChatName">Выберите чат</div>
+                    <div class="current-chat-status" id="currentChatStatus"></div>
+                </div>
+                <div class="chat-actions">
+                    <i class="fas fa-phone-alt chat-action-btn" id="voiceCallBtn"></i>
+                    <i class="fas fa-video chat-action-btn" id="videoCallBtn"></i>
+                    <i class="fas fa-info-circle chat-action-btn" id="chatInfoBtn"></i>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <i class="fas fa-comment-dots"></i>
+                    <h2>Добро пожаловать в kocmoc!</h2>
+                    <p>Выберите чат из списка чтобы начать общение</p>
+                </div>
+            </div>
+
+            <div class="message-input-container">
+                <i class="far fa-smile emoji-btn" id="emojiBtn"></i>
+                <i class="fas fa-paperclip attachment-btn" id="attachmentBtn"></i>
+                <input accept="*/*" id="fileInput" style="display: none;" type="file" />
+                <div class="message-input-wrapper">
+                    <textarea class="message-input" id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
+                    <div class="emoji-panel" id="emojiPanel"></div>
+                </div>
+                <i class="fas fa-microphone voice-message-btn" id="voiceMessageBtn"></i>
+                <i class="fas fa-paper-plane send-btn" id="sendMessageBtn"></i>
+            </div>
+        </div>
+
+        <!-- Мобильный футер -->
+        <div class="mobile-footer">
+            <div class="mobile-nav">
+                <div class="mobile-nav-item active" data-tab="chats">
+                    <i class="fas fa-comments"></i>
+                    <span>Чаты</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="contacts">
+                    <i class="fas fa-address-book"></i>
+                    <span>Контакты</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="groups">
+                    <i class="fas fa-users"></i>
+                    <span>Группы</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Профиль</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Админ-панель -->
+    <div class="admin-container" id="adminContainer">
+        <div class="admin-header">
+            <div class="admin-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>Админ-панель</span>
+            </div>
+            <div class="admin-user">
+                <img class="user-avatar" id="adminUserAvatar" src="" />
+                <span id="adminUserName"></span>
+                <button class="logout-btn" id="adminLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="statistics">Статистика</button>
+            <button class="admin-tab" data-tab="users">Пользователи</button>
+            <button class="admin-tab" data-tab="messages">Сообщения</button>
+            <button class="admin-tab" data-tab="devices">Устройства</button>
+        </div>
+
+        <div class="admin-content">
+            <div class="admin-tab-content active" id="statisticsTab">
+                <h2>Статистика системы</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Пользователей</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalChats">0</div>
+                        <div class="stat-label">Чатов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalMessages">0</div>
+                        <div class="stat-label">Сообщений</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalDevices">0</div>
+                        <div class="stat-label">Устройств</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-tab-content" id="usersTab">
+                <h2>Управление пользователями</h2>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Аватар</th>
+                                <th>Имя</th>
+                                <th>Email</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-tab-content" id="messagesTab">
+                <h2>Все сообщения</h2>
+                <div class="admin-message-view" id="adminMessagesView"></div>
+            </div>
+
+            <div class="admin-tab-content" id="devicesTab">
+                <h2>Управление устройствами</h2>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID устройства</th>
+                                <th>Количество аккаунтов</th>
+                                <th>Создано</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="devicesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div class="modal" id="newChatModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Новый чат</div>
+                <div class="modal-close" id="closeNewChatModal">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Выберите пользователя</label>
+                    <select class="form-control" id="userSelect"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="createChatBtn">Создать чат</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="createGroupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Создать группу</div>
+                <div class="modal-close" id="closeCreateGroupModal">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Название группы</label>
+                    <input class="form-control" id="groupNameInput" placeholder="Введите название группы" type="text" />
+                </div>
+                <div class="form-group">
+                    <label>Выберите участников</label>
+                    <select class="form-control" id="groupMembersSelect" multiple style="height: 150px;">
+                    </select>
+                    <small>Для выбора нескольких участников удерживайте Ctrl (Cmd на Mac)</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="createGroupBtn">Создать группу</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Настройки</div>
+                <div class="modal-close" id="closeSettingsModal">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Тема приложения</label>
+                    <select class="form-control" id="themeSelect">
+                        <option value="default">Фиолетовая</option>
+                        <option value="dark">Темная</option>
+                        <option value="light">Светлая</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Проверка микрофона</label>
+                    <button class="btn" id="testMicrophoneBtn" type="button">
+                        <i class="fas fa-microphone"></i>
+                        Проверить микрофон
+                    </button>
+                    <small>Проверьте работу микрофона перед отправкой голосовых сообщений</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="saveSettingsBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="accountSwitchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Выбор аккаунта</div>
+                <div class="modal-close" id="closeAccountSwitchModal">×</div>
+            </div>
+            <div class="modal-body">
+                <div class="accounts-list" id="accountsList"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="addAccountBtn">Добавить аккаунт</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-modal" id="featureModal">
+        <div class="feature-modal-content">
+            <div class="feature-modal-icon">🚧</div>
+            <h2 class="feature-modal-title">В разработке</h2>
+            <p class="feature-modal-text">Данная функция находится в разработке.</p>
+            <button class="feature-modal-close" id="closeFeatureModal">OK</button>
+        </div>
+    </div>
+
+    <!-- Модальное для файлов -->
+    <div class="modal" id="fileModal">
+        <div class="modal-content file-modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="fileModalTitle">Файл</div>
+                <div class="modal-close" id="closeFileModal">×</div>
+            </div>
+            <div class="modal-body file-modal-body" id="fileModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Индикатор записи голоса -->
+    <div class="voice-recorder" id="voiceRecorder">
+        <div class="voice-recorder-content">
+            <div class="voice-recorder-icon">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="voice-recorder-timer">0:00</div>
+            <div class="voice-recorder-actions">
+                <button class="voice-recorder-cancel" id="voiceRecorderCancel">Отмена</button>
+                <button class="voice-recorder-send" id="voiceRecorderSend">Отправить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>
