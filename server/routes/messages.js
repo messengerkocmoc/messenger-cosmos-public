@@ -2,6 +2,11 @@ const express = require('express');
 const { dbRun, dbGet, dbAll } = require('../database');
 const { authenticateToken } = require('../middleware/auth');
 
+// Encryption utilities. If MESSAGE_KEY is not configured, these
+// functions will throw at module load time. See
+// server/utils/encryption.js for details.
+const { encryptMessage, decryptMessage } = require('../utils/encryption');
+
 const router = express.Router();
 
 router.use(authenticateToken);
@@ -62,7 +67,19 @@ router.get('/:chatId', async (req, res) => {
             `, [chatId, parseInt(limit), parseInt(offset)]);
         }
 
-        res.json({ messages });
+        // Decrypt message text before sending to client. If decryption fails,
+        // the original ciphertext is returned unchanged.
+        const decrypted = messages.map(m => {
+            if (m && typeof m.text === 'string' && m.text !== null) {
+                try {
+                    m.text = decryptMessage(m.text);
+                } catch (err) {
+                    // Leave as‑is on decryption error
+                }
+            }
+            return m;
+        });
+        res.json({ messages: decrypted });
     } catch (err) {
         console.error('Ошибка получения сообщений:', err);
         res.status(500).json({ error: 'Ошибка получения сообщений' });
@@ -96,18 +113,21 @@ router.post('/:chatId', async (req, res) => {
 
         let result;
         try {
+            // Зашифровываем текст перед сохранением. Остальные поля храним без изменений.
+            const encryptedText = text ? encryptMessage(text) : null;
             // Пытаемся использовать полный запрос с новыми полями
             result = await dbRun(`
                 INSERT INTO messages (chat_id, sender_id, text, message_type, file_url, file_name, file_size, file_type, voice_url, voice_duration, status)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'sent')
-            `, [chatId, req.user.id, text, message_type, file_url, file_name, file_size, file_type, voice_url, voice_duration]);
+            `, [chatId, req.user.id, encryptedText, message_type, file_url, file_name, file_size, file_type, voice_url, voice_duration]);
         } catch (insertError) {
-            // Если ошибка, используем простой запрос
+            // Если ошибка, используем простой запрос. Шифруем текст так же.
             console.log('Используем упрощенную вставку сообщения:', insertError.message);
+            const encryptedText2 = text ? encryptMessage(text) : null;
             result = await dbRun(`
                 INSERT INTO messages (chat_id, sender_id, text, status)
                 VALUES (?, ?, ?, 'sent')
-            `, [chatId, req.user.id, text]);
+            `, [chatId, req.user.id, encryptedText2]);
         }
 
         // Увеличиваем счётчик непрочитанных для других участников
@@ -146,6 +166,14 @@ router.post('/:chatId', async (req, res) => {
             `, [result.id]);
         }
 
+        // Расшифровываем текст перед отправкой ответа
+        if (message && typeof message.text === 'string' && message.text !== null) {
+            try {
+                message.text = decryptMessage(message.text);
+            } catch (err) {
+                // leave as‑is on failure
+            }
+        }
         res.status(201).json({ message });
     } catch (err) {
         console.error('Ошибка отправки сообщения:', err);
@@ -282,7 +310,9 @@ router.get('/:chatId/search', async (req, res) => {
             return res.status(403).json({ error: 'Вы не участник этого чата' });
         }
 
-        const messages = await dbAll(`
+        // Зашифрованные сообщения нельзя искать в базе по LIKE. Получаем
+        // сообщения и фильтруем по расшифрованному тексту на сервере.
+        const rows = await dbAll(`
             SELECT 
                 m.id, m.text, m.created_at,
                 m.sender_id,
@@ -290,12 +320,26 @@ router.get('/:chatId/search', async (req, res) => {
                 u.avatar as sender_avatar
             FROM messages m
             JOIN users u ON m.sender_id = u.id
-            WHERE m.chat_id = ? AND m.text LIKE ?
+            WHERE m.chat_id = ?
             ORDER BY m.created_at DESC
-            LIMIT 50
-        `, [chatId, `%${query}%`]);
-
-        res.json({ messages });
+            LIMIT 200
+        `, [chatId]);
+        const q = String(query).toLowerCase();
+        const filtered = [];
+        for (const m of rows) {
+            let plain;
+            try {
+                plain = decryptMessage(m.text);
+            } catch (err) {
+                plain = m.text;
+            }
+            if (plain && plain.toLowerCase().includes(q)) {
+                m.text = plain;
+                filtered.push(m);
+                if (filtered.length >= 50) break;
+            }
+        }
+        res.json({ messages: filtered });
     } catch (err) {
         console.error('Ошибка поиска сообщений:', err);
         res.status(500).json({ error: 'Ошибка поиска сообщений' });
