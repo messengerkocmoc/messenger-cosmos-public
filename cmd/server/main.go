@@ -32,12 +32,13 @@ func main() {
 	}
 
 	authSvc := auth.NewService(cfg.JWTSecret, cfg.TokenTTL, pool)
-	authMW := middleware.NewAuth(authSvc)
+	authMW := middleware.NewAuth(authSvc, pool)
+	handler := legacyhttp.NewHandler(pool, authSvc, cfg)
 
 	router := legacyhttp.NewRouter(legacyhttp.RouterDeps{
-		Placeholder: legacyhttp.NewPlaceholderHandler(),
-		AuthMW:      authMW,
-		Config:      cfg,
+		Handler: handler,
+		AuthMW:  authMW,
+		Config:  cfg,
 	})
 
 	// Static assets mimic Express config

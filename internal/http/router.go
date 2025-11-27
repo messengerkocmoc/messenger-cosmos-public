@@ -8,12 +8,12 @@ import (
 )
 
 type RouterDeps struct {
-	Placeholder *PlaceholderHandler
-	AuthMW      *middleware.Auth
-	Config      config.Config
+	Handler *Handler
+	AuthMW  *middleware.Auth
+	Config  config.Config
 }
 
-// NewRouter wires Gin with legacy-compatible middleware and placeholders.
+// NewRouter wires Gin with legacy-compatible middleware and handlers.
 func NewRouter(deps RouterDeps) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
@@ -30,65 +30,65 @@ func NewRouter(deps RouterDeps) *gin.Engine {
 	registerMessageRoutes(api.Group("/messages"), deps)
 	registerFileRoutes(api.Group("/files"), deps)
 
-	r.POST("/admin/toggle-maintenance", deps.Placeholder.NotImplemented)
+	r.POST("/admin/toggle-maintenance", deps.Handler.ToggleMaintenance)
 	r.GET("/health", func(ctx *gin.Context) { ctx.JSON(200, gin.H{"status": "ok"}) })
 
 	return r
 }
 
 func registerAuthRoutes(r *gin.RouterGroup, deps RouterDeps) {
-	r.POST("/register", deps.Placeholder.NotImplemented)
-	r.POST("/verify-email", deps.Placeholder.NotImplemented)
-	r.POST("/resend-code", deps.Placeholder.NotImplemented)
-	r.POST("/login", deps.Placeholder.NotImplemented)
-	r.POST("/logout", deps.Placeholder.NotImplemented)
-	r.GET("/verify", deps.Placeholder.NotImplemented)
-	r.GET("/accounts/:deviceId", deps.Placeholder.NotImplemented)
+	r.POST("/register", deps.Handler.Register)
+	r.POST("/verify-email", deps.Handler.VerifyEmail)
+	r.POST("/resend-code", deps.Handler.ResendCode)
+	r.POST("/login", deps.Handler.Login)
+	r.POST("/logout", deps.Handler.Logout)
+	r.GET("/verify", deps.Handler.VerifyToken)
+	r.GET("/accounts/:deviceId", deps.Handler.AccountsByDevice)
 }
 
 func registerUserRoutes(r *gin.RouterGroup, deps RouterDeps) {
 	r.Use(deps.AuthMW.Middleware())
-	r.GET("/", deps.Placeholder.NotImplemented)
-	r.GET("/:id", deps.Placeholder.NotImplemented)
-	r.PUT("/:id", deps.Placeholder.NotImplemented)
-	r.GET("/admin/stats", deps.Placeholder.NotImplemented)
-	r.GET("/admin/devices", deps.Placeholder.NotImplemented)
-	r.PUT("/admin/devices/:deviceId/reset", deps.Placeholder.NotImplemented)
-	r.PUT("/:id/ban", deps.Placeholder.NotImplemented)
-	r.PUT("/:id/unban", deps.Placeholder.NotImplemented)
-	r.DELETE("/:id", deps.Placeholder.NotImplemented)
-	r.GET("/search/:query", deps.Placeholder.NotImplemented)
+	r.GET("/", deps.Handler.ListUsers)
+	r.GET("/:id", deps.Handler.GetUser)
+	r.PUT("/:id", deps.Handler.UpdateUser)
+	r.GET("/admin/stats", deps.Handler.AdminStats)
+	r.GET("/admin/devices", deps.Handler.AdminDevices)
+	r.PUT("/admin/devices/:deviceId/reset", deps.Handler.ResetDevice)
+	r.PUT("/:id/ban", deps.Handler.BanUser)
+	r.PUT("/:id/unban", deps.Handler.UnbanUser)
+	r.DELETE("/:id", deps.Handler.DeleteUser)
+	r.GET("/search/:query", deps.Handler.SearchUsers)
 }
 
 func registerContactRoutes(r *gin.RouterGroup, deps RouterDeps) {
 	r.Use(deps.AuthMW.Middleware())
-	r.GET("/", deps.Placeholder.NotImplemented)
-	r.POST("/add", deps.Placeholder.NotImplemented)
-	r.POST("/remove", deps.Placeholder.NotImplemented)
+	r.GET("/", deps.Handler.ListContacts)
+	r.POST("/add", deps.Handler.AddContact)
+	r.POST("/remove", deps.Handler.RemoveContact)
 }
 
 func registerChatRoutes(r *gin.RouterGroup, deps RouterDeps) {
 	r.Use(deps.AuthMW.Middleware())
-	r.GET("/", deps.Placeholder.NotImplemented)
-	r.POST("/", deps.Placeholder.NotImplemented)
-	r.GET("/:id", deps.Placeholder.NotImplemented)
-	r.PUT("/:id", deps.Placeholder.NotImplemented)
-	r.DELETE("/:id", deps.Placeholder.NotImplemented)
+	r.GET("/", deps.Handler.ListChats)
+	r.POST("/", deps.Handler.CreateChat)
+	r.GET("/:id", deps.Handler.GetChat)
+	r.PUT("/:id", deps.Handler.UpdateChat)
+	r.DELETE("/:id", deps.Handler.DeleteChat)
 }
 
 func registerMessageRoutes(r *gin.RouterGroup, deps RouterDeps) {
 	r.Use(deps.AuthMW.Middleware())
-	r.GET("/:chatId", deps.Placeholder.NotImplemented)
-	r.POST("/:chatId", deps.Placeholder.NotImplemented)
-	r.POST("/:messageId/react", deps.Placeholder.NotImplemented)
-	r.DELETE("/:messageId/react", deps.Placeholder.NotImplemented)
-	r.PUT("/:chatId/read", deps.Placeholder.NotImplemented)
-	r.DELETE("/:id", deps.Placeholder.NotImplemented)
-	r.GET("/:chatId/search", deps.Placeholder.NotImplemented)
+	r.GET("/:chatId", deps.Handler.ListMessages)
+	r.POST("/:chatId", deps.Handler.SendMessage)
+	r.POST("/:messageId/react", deps.Handler.ReactMessage)
+	r.DELETE("/:messageId/react", deps.Handler.RemoveReaction)
+	r.PUT("/:chatId/read", deps.Handler.MarkRead)
+	r.DELETE("/:id", deps.Handler.DeleteMessage)
+	r.GET("/:chatId/search", deps.Handler.SearchMessages)
 }
 
 func registerFileRoutes(r *gin.RouterGroup, deps RouterDeps) {
-	r.POST("/upload", deps.Placeholder.NotImplemented)
-	r.GET("/:fileId", deps.Placeholder.NotImplemented)
-	r.DELETE("/:fileId", deps.Placeholder.NotImplemented)
+	r.POST("/upload", deps.Handler.UploadFile)
+	r.GET("/:fileId", deps.Handler.GetFile)
+	r.DELETE("/:fileId", deps.Handler.DeleteFile)
 }

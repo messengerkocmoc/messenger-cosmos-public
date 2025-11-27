@@ -18,6 +18,10 @@ type Config struct {
 	PGSSL           bool
 	JWTSecret       string
 	TokenTTL        time.Duration
+	VerificationTTL time.Duration
+	EmailUser       string
+	EmailPass       string
+	EmailFrom       string
 	AdminToken      string
 	MaintenanceFlag string
 }
@@ -28,6 +32,13 @@ func Load() Config {
 	if raw := os.Getenv("JWT_TTL"); raw != "" {
 		if days, err := strconv.Atoi(raw); err == nil {
 			ttl = time.Duration(days) * 24 * time.Hour
+		}
+	}
+
+	verificationTTL := 15 * time.Minute
+	if raw := os.Getenv("VERIFICATION_CODE_EXPIRES_MINUTES"); raw != "" {
+		if minutes, err := strconv.Atoi(raw); err == nil {
+			verificationTTL = time.Duration(minutes) * time.Minute
 		}
 	}
 
@@ -43,6 +54,10 @@ func Load() Config {
 		PGSSL:           sslEnabled,
 		JWTSecret:       firstNonEmpty(os.Getenv("JWT_SECRET"), "your-secret-key-change-in-production"),
 		TokenTTL:        ttl,
+		VerificationTTL: verificationTTL,
+		EmailUser:       os.Getenv("EMAIL_USER"),
+		EmailPass:       os.Getenv("EMAIL_PASS"),
+		EmailFrom:       firstNonEmpty(os.Getenv("EMAIL_FROM"), os.Getenv("EMAIL_USER")),
 		AdminToken:      os.Getenv("ADMIN_TOKEN"),
 		MaintenanceFlag: firstNonEmpty(os.Getenv("MAINTENANCE_FLAG"), "maintenance.flag"),
 	}
