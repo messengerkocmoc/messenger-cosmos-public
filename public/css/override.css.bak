@@ -1,0 +1,41 @@
+/* override.css — улучшения контрастности и mobile adaptation */
+/* primary color adjusted to project */
+:root{ --primary: #666666; }
+
+/* base buttons */
+button, .btn, .button {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+}
+
+/* secondary */
+button.secondary, .btn.secondary {
+  background-color: #e9eefb !important;
+  color: var(--primary) !important;
+}
+
+/* admin panel */
+.admin-panel { background: #ffffff; color: #111827; padding: 16px; }
+.admin-panel .admin-btn { background: #ff6b6b !important; color: #fff !important; }
+
+/* mobile layout */
+.app { display:flex; min-height:100vh; }
+.sidebar { width:320px; flex-shrink:0; transition:transform .18s; }
+.chat-area{ flex:1; }
+
+/* collapse sidebar on small screens */
+@media(max-width:900px){ .sidebar{ position:fixed; left:0; top:0; bottom:0; transform:translateX(-110%); z-index:50; } .sidebar.show{ transform:translateX(0); } .header .menu-toggle{ display:inline-flex; } }
+
+/* inputs */
+input, textarea, select { color:#0f1724 !important; background:#fff !important; border:1px solid #e6e9ef !important; padding:8px !important; border-radius:8px !important; }
+
+/* focus outline */
+a:focus, button:focus, input:focus { outline: 3px solid rgba(0,0,0,0.08); outline-offset:2px; }
+
+/* maintenance modal style (used when maintenance flag present) */
+.maintenance-card{ max-width:640px; margin:48px auto; padding:28px; border-radius:16px; background:linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); color:#fff; text-align:center; }
